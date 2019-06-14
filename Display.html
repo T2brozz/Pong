@@ -1,0 +1,72 @@
+<html>
+
+<head>
+
+  <script>
+    var ws = new WebSocket("ws://localhost:3000/");
+
+    let name = "";
+
+    function load() {
+
+      if ("WebSocket" in window) {
+        //alert("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+
+
+        ws.onopen = function() {
+          console.log("Connected");
+          ws.send(JSON.stringify({
+            id: "Display"
+          }));
+          // Web Socket is connected, send data using send()
+
+          //alert("Message is sent...");
+        };
+
+        ws.onmessage = function(evt) {
+          let data = evt.data;
+          console.log(data);
+          var obj = JSON.parse(data);
+          switch (obj.id) {
+            case "LOGIN":
+              name = obj.name;
+              console.log(name);
+              document.getElementById("name").innerHTML = "Bitte geben sie den Code ein: "+name;
+          }
+        };
+
+        ws.onclose = function() {
+
+          // websocket is closed.
+          console.log("connection ends");
+
+        };
+      } else {
+
+        // The browser doesn't support WebSocket
+        alert("WebSocket NOT supported by your Browser!");
+      }
+    }
+
+
+
+
+
+
+  </script>
+
+</head>
+
+
+
+
+<body onload="load();">
+  <p><span id="name" style="display:inline-block"></span></p>
+
+
+
+</body>
+
+</html>

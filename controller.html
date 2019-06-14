@@ -1,0 +1,164 @@
+<html>
+<style>
+  .loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    /* Safari */
+    animation: spin 2s linear infinite;
+  }
+
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<head>
+
+  <script>
+    var ws = new WebSocket("ws://localhost:3000/");
+    let orientation = "";
+    let name = "";
+
+    function load() {
+      document.getElementById("text1").innerHTML = "Enter  the pin from the Display device";
+      document.getElementById("text2").innerHTML = "Select your orientation from the Display device";
+      if ("WebSocket" in window) {
+        //alert("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+
+
+        ws.onopen = function() {
+          console.log("Connected");
+          // Web Socket is connected, send data using send()
+
+          //alert("Message is sent...");
+        };
+
+        ws.onmessage = function(evt) {
+          let data = evt.data;
+          console.log(data);
+          var obj = JSON.parse(data);
+          switch (obj.id) {
+            case "CONTROLLER":
+              if (obj.orien == orientation) {
+                alert("anmeldung erfolgreich");
+
+              } else if (obj.orien == "nothing") {
+                alert("false Display Id or Room full !! Try it again please");
+              } else{
+                if(orientation=="_left"){
+                  alert("You are now Right! The other Player was faster");
+                }else {
+                  alert("You are now Left! The other Player was faster");
+                }
+              }
+
+
+          }//swith
+        }
+
+        ws.onclose = function() {
+
+          // websocket is closed.
+          console.log("connection ends");
+
+        };
+      } else {
+
+        // The browser doesn't support WebSocket
+        alert("WebSocket NOT supported by your Browser!");
+      }
+    }
+
+
+
+    function login() {
+      name = document.getElementById('id').value;
+      if (name == "") {
+        alert("Enter Id");
+      }
+      if (orientation === "") {
+        alert("Choos an orientation");
+
+      } else {
+        ws.send(JSON.stringify({
+          id: "CONTROLLER",
+          name: name,
+          orien: orientation
+        }));
+        console.log(name);
+      }
+    }
+
+    function to_name() {
+      let to = document.getElementById('to').value;
+      let message = document.getElementById('message').value;
+      ws.send(JSON.stringify({
+        id: "SEND_TO",
+        to_name: to,
+        msg: message
+      }));
+      console.log(JSON.stringify({
+        to_name: to,
+        msg: message
+      }));
+    }
+
+    function right() {
+      orientation = "_right";
+    }
+
+    function left() {
+      orientation = "_left";
+    }
+  </script>
+
+</head>
+
+
+
+
+<body onload="load();">
+
+
+  <p><span id="text1" style="display:inline-block"></span></p>
+
+  <input type="text" style="display:inline-block" value="" id="id" /><!-- Username -->
+
+  <p><span id="text2" style="display:inline-block"></span></p>
+
+  <input type="button" style="display:inline-block" value="Right Controller" onclick="right();" id="right" /> <!-- Controller -->
+  <input type="button" style="display:inline-block" value="Left Controller" onclick="left();" id="left" /><!-- Display -->
+
+
+
+  <p id="p2"></p>
+
+  <input type="button" style="display:inline-block" value="Login as Controller" onclick="login();" id="login" />
+
+
+</body>
+
+</html>
