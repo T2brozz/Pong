@@ -8,7 +8,140 @@
     let name = "";
     let con_right = false;
     let con_left = false;
+function start(){
+  canv = document.getElementById("gc"); // canvas wird geladen
+  ctx = canv.getContext("2d"); //modus auf 2d setzen
 
+  setInterval(game, 1000 / 120); // Wiederholung von der function game 120 mal in der Sekunde ( 120 fps)
+  canv.width = window.innerWidth - 50;
+  canv.height = window.innerHeight - 50;
+  var punkte_schläger_1 = 0;
+  var punkte_schläger_2 = 0;
+  var start_game = false;
+
+
+
+
+  function makeFigur(x_pos, y_pos, höhe, breite) {
+    this.x = x_pos;
+    this.y = y_pos; // Position (x, y)
+    this.höhe = höhe;
+    this.breite = breite;
+    this.vx = 0;
+    this.vy = 0; // Geschwindigkeit in x bzw. y-Richtung
+
+
+
+    this.move = function() {
+      // Figur bewegen und dann für ein Frame anzeigen
+      this.x = this.x + this.vx;
+      this.y = this.y + this.vy;
+      ctx.fillStyle = "white";
+      ctx.fillRect(this.x, this.y, this.höhe, this.breite);
+    }
+  }
+
+
+  var ball = new makeFigur(60, canv.height / 2, 10, 10);
+  var schläger_1 = new makeFigur(canv.width - 10, canv.height / 2 - 25, 10, 50);
+  var schläger_2 = new makeFigur(0, canv.height / 2 - 25, 10, 50);
+
+
+  console.log(canv.width);
+
+
+  ball.vy = (Math.random() * 2) + -2;
+
+  ball.vx = canv.width / 467, 5;
+
+  function game() {
+    // zeichnet alle Lienien
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canv.width, canv.height);
+    ctx.fillStyle = "#20872f";
+    ctx.fillRect(0, 0, canv.width, 10);
+    ctx.fillRect(0, canv.height - 10, canv.width, 10);
+    ctx.fillStyle = "#c42d00";
+    ctx.fillRect(0, 0, 10, canv.height);
+    ctx.fillRect(canv.width - 10, 0, 10, canv.height);
+    ctx.fillStyle = "#595d6d";
+    ctx.fillRect(canv.width / 2 - 5, 0, 10, canv.height);
+    //
+
+    // zeigt punkte an
+    ctx.font = "bold 68px Keania One";
+    ctx.fillStyle = 'white';
+    ctx.textBaseline = 'top';
+    ctx.fillText(punkte_schläger_2, canv.width / 2 - 100, canv.height / 2 - 20);
+    ctx.fillText(punkte_schläger_1, canv.width / 2 + 50, canv.height / 2 - 20);
+    //
+
+    // bewegt alles
+    if (start_game) {
+      ball.move();
+    }
+    schläger_1.move();
+    schläger_2.move();
+    //
+
+    if (ball.y >= canv.height - 20 || ball.y <= 20) { // ball springt von Seitenbanden ab
+      ball.vy = -ball.vy;
+    }
+
+
+    if (ball.x > canv.width - 15 && ball.x <= canv.width - 5 && ball.y > schläger_1.y && ball.y < schläger_1.y + 50) { // schaut ob der rechte schläger den Ball trifft
+      ball.vx = -ball.vx; // spring vom Schläger ab
+    }
+
+    if (ball.x < 15 && ball.x <= 5 && ball.y > schläger_2.y && ball.y < schläger_2.y + 50) { // schaut ob der linke schläger den Ball trifft
+      ball.vx = -ball.vx; // spring vom Schläger ab
+    }
+
+    // stoppt die Banden beim aus dem Bild gehen
+    if (schläger_1.y < 0) {
+      schläger_1.y = 0;
+    } else if (schläger_1.y + 50 > canv.height) {
+      schläger_1.y = canv.height - 50;
+    }
+
+
+    if (schläger_2.y < 0) {
+      schläger_2.y = 0;
+    } else if (schläger_2.y + 50 > canv.height) {
+      schläger_2.y = canv.height - 50;
+    }
+    //
+
+    // punkt prüfung
+    if (ball.x > canv.width) {
+      punkte_schläger_2++;
+      ball.vx = -canv.width / 467, 5;
+      ball.x = canv.width - 70;
+      ball.vy = (Math.random() * 4) + -4;
+
+      ball.y = canv.height / 2;
+      schläger_1.y = schläger_2.y = canv.height / 2 - 25;
+
+
+
+
+    }
+    if (ball.x < 0) {
+      punkte_schläger_1++;
+
+      ball.vx = canv.width / 467, 5;
+      ball.x = 60;
+      ball.vy = (Math.random() * 4) + -4;
+
+      ball.y = canv.height / 2;
+      schläger_1.y = schläger_2.y = canv.height / 2 - 25;
+
+    }
+    //
+  }
+
+  //
+}
     function load() {
 
       if ("WebSocket" in window) {
@@ -45,6 +178,10 @@
               }
               if(con_right && con_left){
                 document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 5 seconds";
+                document.getElementById('name').style.display = "none";
+                document.getElementById("gc").style.display = "inline-block";
+                document.getElementById("font").style.display = "inline-block";
+                start();
               }else if (con_right) {
                 document.getElementById("name").innerHTML = "Waiting for the left Controller. Code:"+name;
               }else if (con_right) {
@@ -74,6 +211,9 @@
 
 <body onload="load();">
   <p><span id="name" style="display:inline-block"></span></p>
+  <span style="font-family: 'Keania+One';"style="display:none" id="font"> &nbsp; </span>
+
+  <canvas id="gc" width="" height=""style="display:none"></canvas>
 
 
 
