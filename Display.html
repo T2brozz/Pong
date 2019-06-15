@@ -6,6 +6,8 @@
     var ws = new WebSocket("ws://localhost:3000/");
 
     let name = "";
+    let con_right = false;
+    let con_left = false;
 
     function load() {
 
@@ -28,13 +30,27 @@
         ws.onmessage = function(evt) {
           let data = evt.data;
           console.log(data);
-          var obj = JSON.parse(data);
+          let obj = JSON.parse(data);
           switch (obj.id) {
             case "LOGIN":
               name = obj.name;
               console.log(name);
-              document.getElementById("name").innerHTML = "Bitte geben sie den Code ein: "+name;
-          }
+              document.getElementById("name").innerHTML = "Bitte geben sie den Code ein: " + name;
+
+            case "CONTROLLER CONNECT":
+              if (obj.orien == "_right") {
+                con_right=true;
+              }else if (obj.orien =="_left") {
+                con_left=true;
+              }
+              if(con_right && con_left){
+                document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 5 seconds";
+              }else if (con_right) {
+                document.getElementById("name").innerHTML = "Waiting for the left Controller. Code:"+name;
+              }else if (con_right) {
+                document.getElementById("name").innerHTML = "Waiting for the right Controller. Code:"+name;
+              }
+          } //switch
         };
 
         ws.onclose = function() {
@@ -49,12 +65,6 @@
         alert("WebSocket NOT supported by your Browser!");
       }
     }
-
-
-
-
-
-
   </script>
 
 </head>

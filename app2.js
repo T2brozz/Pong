@@ -126,6 +126,11 @@ wss.on('connection', function connection(ws) {
                     id: "CONTROLLER",
                     orien: "_left"
                   }));
+                  //___________________
+                  lookup_dis[obj.name].send(JSON.stringify({
+                    id: "CONTROLLER CONNECT",
+                    orien: "_left"
+                  }));
                   console.log(obj.name + "_left");
                 }
               } else {
@@ -143,6 +148,11 @@ wss.on('connection', function connection(ws) {
                     id: "CONTROLLER",
                     orien: "_right"
                   }));
+                  //______________________
+                  lookup_dis[obj.name].send(JSON.stringify({
+                    id: "CONTROLLER CONNECT",
+                    orien: "_right"
+                  }));
                   console.log(obj.name + "_right");
                 }
               }
@@ -155,6 +165,11 @@ wss.on('connection', function connection(ws) {
                 orien: obj.orien
               }));
               console.log(obj.name + obj.orien);
+              //___________________
+              lookup_dis[obj.name].send(JSON.stringify({
+                id: "CONTROLLER CONNECT",
+                orien: obj.orien
+              }));
             }
           } else {
             lookup_con["temp"] = ws;

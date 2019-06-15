@@ -41,7 +41,7 @@
     let name = "";
 
     function load() {
-      document.getElementById("text1").innerHTML = "Enter  the pin from the Display device";
+      document.getElementById("text1").innerHTML = "Enter  the Code from the Display device";
       document.getElementById("text2").innerHTML = "Select your orientation from the Display device";
       if ("WebSocket" in window) {
         //alert("WebSocket is supported by your Browser!");
@@ -66,7 +66,7 @@
                 alert("anmeldung erfolgreich");
 
               } else if (obj.orien == "nothing") {
-                alert("false Display Id or Room full !! Try it again please");
+                alert("false Display Code or Room is full !! Try it again please");
               } else{
                 if(orientation=="_left"){
                   alert("You are now Right! The other Player was faster");
