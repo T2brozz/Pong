@@ -84,8 +84,6 @@ wss.on('connection', function connection(ws) {
 
         break;
       case "Display":
-
-
         while (true) {
           var name = Math.floor(Math.random() * (9999 - 1000) + 1000);
           if (names_dis.includes(String(name)) !== true) {
@@ -103,9 +101,7 @@ wss.on('connection', function connection(ws) {
 
           }
         }
-
-
-
+        break;
         case "CONTROLLER":
           if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
             if (names_con.includes(obj.name + obj.orien)) {
@@ -118,8 +114,6 @@ wss.on('connection', function connection(ws) {
                   }));
                   delete lookup_con["temp"];
                 } else {
-
-
                   names_con.push(obj.name + "_left");
                   lookup_con[(obj.name + "_left")] = ws;
                   lookup_con[(obj.name + "_left")].send(JSON.stringify({
@@ -179,6 +173,17 @@ wss.on('connection', function connection(ws) {
             }));
             delete lookup_con["temp"];
           }
+          break;
+        case "GO":
+          if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
+            lookup_con[obj.name + "_left"].send(JSON.stringify({
+              id: "GO"
+            }));
+            lookup_con[obj.name + "_right"].send(JSON.stringify({
+              id: "GO"
+            }));
+          }
+          break;
 
 
     } //switch

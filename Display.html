@@ -187,19 +187,24 @@
                 document.getElementById('name').style.display = "none";
                 document.getElementById("gc").style.display = "inline-block";
                 document.getElementById("font").style.display = "inline-block";
-                sleep(1000);
+                ws.send(JSON.stringify({
+                  id: "GO",
+                  name:name
+
+                }))
+                /*  sleep(1000);
                 document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 4 seconds";
                 sleep(1000);
-                sleep(1000);
+
                 document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 3 seconds";
                 sleep(1000);
-                sleep(1000);
+
                 document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 2 seconds";
                 sleep(1000);
-                sleep(1000);
+
                 document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 1 second";
                 sleep(1000);
-
+*/
                 start();
 
 

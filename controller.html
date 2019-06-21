@@ -1,36 +1,6 @@
 <html>
 <style>
-  .loader {
-    border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 120px;
-    height: 120px;
-    -webkit-animation: spin 2s linear infinite;
-    /* Safari */
-    animation: spin 2s linear infinite;
-  }
 
-  /* Safari */
-  @-webkit-keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-    }
-
-    100% {
-      -webkit-transform: rotate(360deg);
-    }
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 </style>
 
 <head>
@@ -39,6 +9,55 @@
     var ws = new WebSocket("ws://localhost:3000/");
     let orientation = "";
     let name = "";
+    var moves = document.getElementById('moves');
+    var y_current = 0;
+    var y_last = 0;
+    var touch = false;
+
+
+
+
+       //var  document = document.querySelector('.document');
+
+
+
+
+      function game() {
+
+        if (y_current > y_last && touch) {
+          document.getElementById("text1").innerHTML = "down";
+          ws.send(JSON.stringify({
+            id: "GAME",
+            name: name,
+            orien: orientation,
+            y: "down"
+          }));
+
+        } else if (y_current < y_last && touch) {
+          document.getElementById("text1").innerHTML = "up";
+          ws.send(JSON.stringify({
+            id: "GAME",
+            name: name,
+            orien: orientation,
+            y: "up"
+          }));
+        } else if (touch == false) {
+          document.getElementById("text1").innerHTML = "";
+          ws.send(JSON.stringify({
+            id: "GAME",
+            name: name,
+            orien: orientation,
+            y: "no changes"
+          }));
+        }
+        y_last = y_current;
+      }
+
+
+
+
+
+
 
     function load() {
       document.getElementById("text1").innerHTML = "Enter  the Code from the Display device";
@@ -67,16 +86,22 @@
 
               } else if (obj.orien == "nothing") {
                 alert("false Display Code or Room is full !! Try it again please");
-              } else{
-                if(orientation=="_left"){
+              } else {
+                if (orientation == "_left") {
                   alert("You are now Right! The other Player was faster");
-                }else {
+                } else {
                   alert("You are now Left! The other Player was faster");
                 }
               }
 
-
-          }//swith
+              case "GO":
+                document.getElementById('text2').style.display = "none";
+                document.getElementById('right').style.display = "none";
+                document.getElementById("left").style.display = "none";
+                document.getElementById('login').style.display = "none";
+                setInterval(game, 100 / 120);
+                break;
+          } //swith
         }
 
         ws.onclose = function() {
@@ -133,6 +158,29 @@
     function left() {
       orientation = "_left";
     }
+
+
+
+
+    document.addEventListener('touchstart', function(eve) {
+      var touchobj = eve.changedTouches[0]; // erster Finger
+      eve.preventDefault();
+      touch = true;
+    });
+
+    document.addEventListener('touchmove', function(eve) {
+      var touchobj = eve.changedTouches[0]; // erster Finger
+      y_current = parseInt(touchobj.clientY, 10);
+
+      eve.preventDefault();
+    });
+
+    document.addEventListener('touchend', function(eve) {
+      var touchobj = eve.changedTouches[0]; // reference first touch point for this event
+      eve.preventDefault();
+      touch = false;
+    });
+
   </script>
 
 </head>
