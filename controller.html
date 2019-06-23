@@ -25,30 +25,7 @@
 
     function game() {
 
-        if (y_current > y_last && touch) {  //changes orientation relativ
-          document.getElementById("text1").innerHTML = "down";
-          ws.send(JSON.stringify({
-            id: "GAME",
-            name: name,
-            orien: orientation,
-            y: "down"
-          }));
-
-        } else if (y_current < y_last && touch) {
-          document.getElementById("text1").innerHTML = "up";
-          ws.send(JSON.stringify({
-            id: "GAME",
-            name: name,
-            orien: orientation,
-            y: "up"
-          }));
-        } else if (touch == false || y_last==y_current) {
-          document.getElementById("text1").innerHTML = "";
-
-        }
-        y_last = y_current;
-
-  /*    if (y_current > height / 2 && touch) {  //changes orientation in the mid
+      if (y_current > y_last && touch) { //changes orientation relativ
         document.getElementById("text1").innerHTML = "down";
         ws.send(JSON.stringify({
           id: "GAME",
@@ -56,7 +33,8 @@
           orien: orientation,
           y: "down"
         }));
-      } else if (y_current < height / 2 && touch) {
+
+      } else if (y_current < y_last && touch) {
         document.getElementById("text1").innerHTML = "up";
         ws.send(JSON.stringify({
           id: "GAME",
@@ -64,7 +42,29 @@
           orien: orientation,
           y: "up"
         }));
-      }*/
+      } else if (touch == false || y_last == y_current) {
+        document.getElementById("text1").innerHTML = "";
+
+      }
+      y_last = y_current;
+
+      /*    if (y_current > height / 2 && touch) {  //changes orientation in the mid
+            document.getElementById("text1").innerHTML = "down";
+            ws.send(JSON.stringify({
+              id: "GAME",
+              name: name,
+              orien: orientation,
+              y: "down"
+            }));
+          } else if (y_current < height / 2 && touch) {
+            document.getElementById("text1").innerHTML = "up";
+            ws.send(JSON.stringify({
+              id: "GAME",
+              name: name,
+              orien: orientation,
+              y: "up"
+            }));
+          }*/
     }
 
 

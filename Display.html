@@ -62,29 +62,29 @@
       function game() {
         //websocket
         //if(con_right_c){
-          if(con_right_position=="up"){
-            schläger_right.y-=10;
-            console.log("Right up");
-            con_right_position="";
-            start_game=true;
-          }else if (con_right_position=="down") {
-            schläger_right.y+=10;
-            console.log("right down");
-            con_right_position="";
-            start_game=true;
-          }
-      //  }else if (con_left_c) {
-          else if(con_left_position=="up"){
-            schläger_left.y-=10;
-            console.log("Left up");
-            con_left_position="";
-            start_game=true;
-          }else if (con_left_position=="down") {
-            schläger_left.y+=10;
-            console.log("Left down");
-            con_left_position="";
-            start_game=true;
-          }
+        if (con_right_position == "up") {
+          schläger_right.y -= 10;
+          console.log("Right up");
+          con_right_position = "";
+          start_game = true;
+        } else if (con_right_position == "down") {
+          schläger_right.y += 10;
+          console.log("right down");
+          con_right_position = "";
+          start_game = true;
+        }
+        //  }else if (con_left_c) {
+        else if (con_left_position == "up") {
+          schläger_left.y -= 10;
+          console.log("Left up");
+          con_left_position = "";
+          start_game = true;
+        } else if (con_left_position == "down") {
+          schläger_left.y += 10;
+          console.log("Left down");
+          con_left_position = "";
+          start_game = true;
+        }
         //}
         // zeichnet alle Lienien
         ctx.fillStyle = "black";
@@ -238,7 +238,7 @@
 */
                 start();
               } else if (con_right) {
-                document.getElementById("name").innerHTML = "Waiting for the left Controller.      Code:" + name;
+                document.getElementById("name").innerHTML = "Waiting for the left Controller.    Code:" + name;
               } else if (con_right) {
                 document.getElementById("name").innerHTML = "Waiting for the right Controller.     Code:" + name;
               }
