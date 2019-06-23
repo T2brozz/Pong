@@ -9,22 +9,23 @@
     var ws = new WebSocket("ws://localhost:3000/");
     let orientation = "";
     let name = "";
-    var moves = document.getElementById('moves');
-    var y_current = 0;
-    var y_last = 0;
-    var touch = false;
+    let moves = document.getElementById('moves');
+    var height = window.innerHeight;
+    let y_current = 0;
+    let y_last = 0;
+    let touch = false;
 
 
 
 
-       //var  document = document.querySelector('.document');
+    //var  document = document.querySelector('.document');
 
 
 
 
-      function game() {
+    function game() {
 
-        if (y_current > y_last && touch) {
+        if (y_current > y_last && touch) {  //changes orientation relativ
           document.getElementById("text1").innerHTML = "down";
           ws.send(JSON.stringify({
             id: "GAME",
@@ -41,17 +42,30 @@
             orien: orientation,
             y: "up"
           }));
-        } else if (touch == false) {
+        } else if (touch == false || y_last==y_current) {
           document.getElementById("text1").innerHTML = "";
-          ws.send(JSON.stringify({
-            id: "GAME",
-            name: name,
-            orien: orientation,
-            y: "no changes"
-          }));
+
         }
         y_last = y_current;
-      }
+
+  /*    if (y_current > height / 2 && touch) {  //changes orientation in the mid
+        document.getElementById("text1").innerHTML = "down";
+        ws.send(JSON.stringify({
+          id: "GAME",
+          name: name,
+          orien: orientation,
+          y: "down"
+        }));
+      } else if (y_current < height / 2 && touch) {
+        document.getElementById("text1").innerHTML = "up";
+        ws.send(JSON.stringify({
+          id: "GAME",
+          name: name,
+          orien: orientation,
+          y: "up"
+        }));
+      }*/
+    }
 
 
 
@@ -93,14 +107,33 @@
                   alert("You are now Left! The other Player was faster");
                 }
               }
+              break;
+            case "GO":
+              document.getElementById('id').style.display = "none";
+              document.getElementById('text2').style.display = "none";
+              document.getElementById('right').style.display = "none";
+              document.getElementById("left").style.display = "none";
+              document.getElementById('login').style.display = "none";
+              window.addEventListener('touchstart', function(eve) {
+                var touchobj = eve.changedTouches[0]; // erster Finger
+                eve.preventDefault();
+                touch = true;
+              });
 
-              case "GO":
-                document.getElementById('text2').style.display = "none";
-                document.getElementById('right').style.display = "none";
-                document.getElementById("left").style.display = "none";
-                document.getElementById('login').style.display = "none";
-                setInterval(game, 100 / 120);
-                break;
+              window.addEventListener('touchmove', function(eve) {
+                var touchobj = eve.changedTouches[0]; // erster Finger
+                y_current = parseInt(touchobj.clientY, 10);
+
+                eve.preventDefault();
+              });
+
+              window.addEventListener('touchend', function(eve) {
+                var touchobj = eve.changedTouches[0]; // reference first touch point for this event
+                eve.preventDefault();
+                touch = false;
+              });
+              setInterval(game, 100 / 120);
+              break;
           } //swith
         }
 
@@ -158,29 +191,6 @@
     function left() {
       orientation = "_left";
     }
-
-
-
-
-    document.addEventListener('touchstart', function(eve) {
-      var touchobj = eve.changedTouches[0]; // erster Finger
-      eve.preventDefault();
-      touch = true;
-    });
-
-    document.addEventListener('touchmove', function(eve) {
-      var touchobj = eve.changedTouches[0]; // erster Finger
-      y_current = parseInt(touchobj.clientY, 10);
-
-      eve.preventDefault();
-    });
-
-    document.addEventListener('touchend', function(eve) {
-      var touchobj = eve.changedTouches[0]; // reference first touch point for this event
-      eve.preventDefault();
-      touch = false;
-    });
-
   </script>
 
 </head>

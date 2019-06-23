@@ -75,7 +75,7 @@ wss.on('connection', function connection(ws) {
           console.log("user ist not avilable");
         }
         break;
-      case "Ask Controller":
+      case "Ask Controldler":
         if (typeof obj.con1 !== "undefined" && obj.con1 != "" && typeof lookup_con[obj.con1] !== "undefined" &&
           typeof obj.con2 !== "undefined" && obj.con2 != "" && typeof lookup_con[obj.con2] !== "undefined" && obj.con1 !== obj.con2) {
           lookup_con[obj.con1].send(obj.name + " want to connect");
@@ -102,89 +102,99 @@ wss.on('connection', function connection(ws) {
           }
         }
         break;
-        case "CONTROLLER":
-          if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
-            if (names_con.includes(obj.name + obj.orien)) {
-              if (obj.orien == "_right") {
-                if (names_con.includes(obj.name + "_left")) {
-                  lookup_con["temp"] = ws;
-                  lookup_con["temp"].send(JSON.stringify({
-                    id: "CONTROLLER",
-                    orien: "nothing"
-                  }));
-                  delete lookup_con["temp"];
-                } else {
-                  names_con.push(obj.name + "_left");
-                  lookup_con[(obj.name + "_left")] = ws;
-                  lookup_con[(obj.name + "_left")].send(JSON.stringify({
-                    id: "CONTROLLER",
-                    orien: "_left"
-                  }));
-                  //___________________
-                  lookup_dis[obj.name].send(JSON.stringify({
-                    id: "CONTROLLER CONNECT",
-                    orien: "_left"
-                  }));
-                  console.log(obj.name + "_left");
-                }
+      case "CONTROLLER":
+        if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
+          if (names_con.includes(obj.name + obj.orien)) {
+            if (obj.orien == "_right") {
+              if (names_con.includes(obj.name + "_left")) {
+                lookup_con["temp"] = ws;
+                lookup_con["temp"].send(JSON.stringify({
+                  id: "CONTROLLER",
+                  orien: "nothing"
+                }));
+                delete lookup_con["temp"];
               } else {
-                if (names_con.includes(obj.name + "_right")) {
-                  lookup_con["temp"] = ws;
-                  lookup_con["temp"].send(JSON.stringify({
-                    id: "CONTROLLER",
-                    orien: "nothing"
-                  }));
-                  delete lookup_con["temp"];
-                } else {
-                  names_con.push(obj.name + "_right");
-                  lookup_con[(obj.name + "_right")] = ws;
-                  lookup_con[(obj.name + "_right")].send(JSON.stringify({
-                    id: "CONTROLLER",
-                    orien: "_right"
-                  }));
-                  //______________________
-                  lookup_dis[obj.name].send(JSON.stringify({
-                    id: "CONTROLLER CONNECT",
-                    orien: "_right"
-                  }));
-                  console.log(obj.name + "_right");
-                }
+                names_con.push(obj.name + "_left");
+                lookup_con[(obj.name + "_left")] = ws;
+                lookup_con[(obj.name + "_left")].send(JSON.stringify({
+                  id: "CONTROLLER",
+                  orien: "_left"
+                }));
+                //___________________
+                lookup_dis[obj.name].send(JSON.stringify({
+                  id: "CONTROLLER CONNECT",
+                  orien: "_left"
+                }));
+                console.log(obj.name + "_left");
               }
-              //Send back (faliure)
             } else {
-              names_con.push(obj.name + obj.orien);
-              lookup_con[(obj.name + obj.orien)] = ws;
-              lookup_con[(obj.name + obj.orien)].send(JSON.stringify({
-                id: "CONTROLLER",
-                orien: obj.orien
-              }));
-              console.log(obj.name + obj.orien);
-              //___________________
-              lookup_dis[obj.name].send(JSON.stringify({
-                id: "CONTROLLER CONNECT",
-                orien: obj.orien
-              }));
+              if (names_con.includes(obj.name + "_right")) {
+                lookup_con["temp"] = ws;
+                lookup_con["temp"].send(JSON.stringify({
+                  id: "CONTROLLER",
+                  orien: "nothing"
+                }));
+                delete lookup_con["temp"];
+              } else {
+                names_con.push(obj.name + "_right");
+                lookup_con[(obj.name + "_right")] = ws;
+                lookup_con[(obj.name + "_right")].send(JSON.stringify({
+                  id: "CONTROLLER",
+                  orien: "_right"
+                }));
+                //______________________
+                lookup_dis[obj.name].send(JSON.stringify({
+                  id: "CONTROLLER CONNECT",
+                  orien: "_right"
+                }));
+                console.log(obj.name + "_right");
+              }
             }
+            //Send back (faliure)
           } else {
-            lookup_con["temp"] = ws;
-            lookup_con["temp"].send(JSON.stringify({
+            names_con.push(obj.name + obj.orien);
+            lookup_con[(obj.name + obj.orien)] = ws;
+            lookup_con[(obj.name + obj.orien)].send(JSON.stringify({
               id: "CONTROLLER",
-              orien: "nothing"
+              orien: obj.orien
             }));
-            delete lookup_con["temp"];
-          }
-          break;
-        case "GO":
-          if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
-            lookup_con[obj.name + "_left"].send(JSON.stringify({
-              id: "GO"
-            }));
-            lookup_con[obj.name + "_right"].send(JSON.stringify({
-              id: "GO"
+            console.log(obj.name + obj.orien);
+            //___________________
+            lookup_dis[obj.name].send(JSON.stringify({
+              id: "CONTROLLER CONNECT",
+              orien: obj.orien
             }));
           }
-          break;
-
+        } else {
+          lookup_con["temp"] = ws;
+          lookup_con["temp"].send(JSON.stringify({
+            id: "CONTROLLER",
+            orien: "nothing"
+          }));
+          delete lookup_con["temp"];
+        }
+        break;
+      case "GO":
+        if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name) && names_con.includes(obj.name + "_right") && names_con.includes(obj.name + "_right")) {
+          lookup_con[obj.name + "_left"].send(JSON.stringify({
+            id: "GO"
+          }));
+          lookup_con[obj.name + "_right"].send(JSON.stringify({
+            id: "GO"
+          }));
+        } else {
+          console.log("Error");
+        }
+        break;
+      case "GAME":
+        if (typeof obj.name !== "undefined" && obj.name != "" && names_dis.includes(obj.name)) {
+          lookup_dis[obj.name].send(JSON.stringify({
+            id: "GAME",
+            orien: obj.orien,
+            y: obj.y
+          }))
+        }
+        break;
 
     } //switch
 
