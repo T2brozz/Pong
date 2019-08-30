@@ -13,12 +13,12 @@ wss.on('connection', function connection(ws) {
 
 
   ws.on('message', function incoming(data) {
-    console.log("Neue Nachricht: " + data);
+  //  console.log("Neue Nachricht: " + data);
     var obj = JSON.parse(data);
     switch (obj.id) {
 
 
-      case "LOGIN":
+      /*case "LOGIN":
 
 
         if (typeof obj.name !== "undefined" && obj.name != "") {
@@ -82,7 +82,7 @@ wss.on('connection', function connection(ws) {
           lookup_con[obj.con2].send(obj.name + " want to connect");
         }
 
-        break;
+        break;*/ //login ,ask other person and send to
       case "Display":
         while (true) {
           var name = Math.floor(Math.random() * (9999 - 1000) + 1000);
@@ -195,6 +195,11 @@ wss.on('connection', function connection(ws) {
           }))
         }
         break;
+
+
+
+      default:
+      console.log("Neue Nachricht: " + data);
 
     } //switch
 
