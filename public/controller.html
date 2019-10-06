@@ -1,12 +1,17 @@
+<!DOCTYPE html>
 <html>
 <style>
-
+  body {
+    overscroll-behavior: contain;
+  }
 </style>
 
 <head>
 
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <title>Pong Multiplayer</title>
   <script>
-    var ws = new WebSocket("ws://localhost:3000/");
+        var ws = new WebSocket(`ws://${document.location.host}`);
     let orientation = "";
     let name = "";
     let moves = document.getElementById('moves');
@@ -15,59 +20,25 @@
     let y_last = 0;
     let touch = false;
 
-
-
-
-    //var  document = document.querySelector('.document');
-
-
-
-
     function game() {
-
+      document.body.style.zoom=1.0;this.blur();
       if (y_current > y_last && touch) { //changes orientation relativ
-        document.getElementById("text1").innerHTML = "down";
         ws.send(JSON.stringify({
           id: "GAME",
           name: name,
           orien: orientation,
           y: "down"
         }));
-
       } else if (y_current < y_last && touch) {
-        document.getElementById("text1").innerHTML = "up";
         ws.send(JSON.stringify({
           id: "GAME",
           name: name,
           orien: orientation,
           y: "up"
         }));
-      } else if (touch == false || y_last == y_current) {
-        document.getElementById("text1").innerHTML = "";
-
-      }
+      } else if (touch == false || y_last == y_current) {}
       y_last = y_current;
-
-      /*    if (y_current > height / 2 && touch) {  //changes orientation in the mid
-            document.getElementById("text1").innerHTML = "down";
-            ws.send(JSON.stringify({
-              id: "GAME",
-              name: name,
-              orien: orientation,
-              y: "down"
-            }));
-          } else if (y_current < height / 2 && touch) {
-            document.getElementById("text1").innerHTML = "up";
-            ws.send(JSON.stringify({
-              id: "GAME",
-              name: name,
-              orien: orientation,
-              y: "up"
-            }));
-          }*/
     }
-
-
 
 
 
@@ -109,6 +80,7 @@
               }
               break;
             case "GO":
+              document.getElementById('text1').style.display = "none";
               document.getElementById('id').style.display = "none";
               document.getElementById('text2').style.display = "none";
               document.getElementById('right').style.display = "none";
@@ -151,14 +123,13 @@
     }
 
 
-
     function login() {
       name = document.getElementById('id').value;
       if (name == "") {
         alert("Enter Id");
       }
       if (orientation === "") {
-        alert("Choos an orientation");
+        alert("Choose an orientation");
 
       } else {
         ws.send(JSON.stringify({
@@ -203,12 +174,12 @@
 
   <p><span id="text1" style="display:inline-block"></span></p>
 
-  <input type="text" style="display:inline-block" value="" id="id" /><!-- Username -->
+  <input type="text" style="display:inline-block" value="" id="id" class ="input"/><!-- Username -->
 
   <p><span id="text2" style="display:inline-block"></span></p>
 
-  <input type="button" style="display:inline-block" value="Right Controller" onclick="right();" id="right" /> <!-- Controller -->
   <input type="button" style="display:inline-block" value="Left Controller" onclick="left();" id="left" /><!-- Display -->
+  <input type="button" style="display:inline-block" value="Right Controller" onclick="right();" id="right" /> <!-- Controller -->
 
 
 

@@ -1,88 +1,35 @@
+var http = require('http');
+const express = require('express');
+var url = require('url');
+var fs = require('fs');
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({
-  port: 3000
-});
+
 var names_con = [];
 var names_dis = [];
 var lookup_dis = {};
 var lookup_con = {};
+const port = 8080;
+const app = express();
+const server = http.createServer(app);
+
+app.use(express.static('public'));
+
+server.listen(process.env.PORT || port, () => {
+    console.log(`Server started on port ${server.address().port}`)
+});
+const wss = new WebSocket.Server({
+  server
+});
+
 
 wss.on('connection', function connection(ws) {
   console.log('Verbindung von Client');
 
-
-
   ws.on('message', function incoming(data) {
-  //  console.log("Neue Nachricht: " + data);
+    //  console.log("Neue Nachricht: " + data);
     var obj = JSON.parse(data);
     switch (obj.id) {
 
-
-      /*case "LOGIN":
-
-
-        if (typeof obj.name !== "undefined" && obj.name != "") {
-          console.log(obj.name + " has logged in");
-
-          if (names.includes(obj.name) || obj.name == "temp") {
-            console.log("name schon vorhanden");
-            lookup_dis["temp"] = ws;
-            lookup_dis["temp"].send(JSON.stringify({
-              id: "LOGIN_ATTEMPT",
-              confirm: "false"
-            }));
-            delete lookup_dis["temp"];
-
-          } else {
-
-            if (obj.device == "1") {
-              lookup_con[obj.name] = ws;
-              names.push(obj.name);
-              lookup_con[obj.name].send(JSON.stringify({
-                id: "LOGIN_ATTEMPT",
-                confirm: "true"
-              }));
-
-              console.log("logged in as controller");
-            }
-            if (obj.device == "2") {
-              lookup_dis[obj.name] = ws;
-              names.push(obj.name);
-              lookup_dis[obj.name].send(JSON.stringify({
-                id: "LOGIN_ATTEMPT",
-                confirm: "true"
-              }));
-
-              console.log("logged in as display");
-            }
-          }
-
-
-        } else {
-          console.log("name is undefined or empty");
-        }
-
-
-
-        break;
-      case "SEND_TO":
-
-
-        if (typeof obj.to_name !== "undefined" && obj.to_name != "" && typeof lookup[obj.to_name] !== "undefined") {
-          console.log("send to " + obj.to_name + " this message: " + obj.msg);
-          lookup[obj.to_name].send(obj.msg);
-        } else {
-          console.log("user ist not avilable");
-        }
-        break;
-      case "Ask Controldler":
-        if (typeof obj.con1 !== "undefined" && obj.con1 != "" && typeof lookup_con[obj.con1] !== "undefined" &&
-          typeof obj.con2 !== "undefined" && obj.con2 != "" && typeof lookup_con[obj.con2] !== "undefined" && obj.con1 !== obj.con2) {
-          lookup_con[obj.con1].send(obj.name + " want to connect");
-          lookup_con[obj.con2].send(obj.name + " want to connect");
-        }
-
-        break;*/ //login ,ask other person and send to
       case "Display":
         while (true) {
           var name = Math.floor(Math.random() * (9999 - 1000) + 1000);
@@ -98,7 +45,6 @@ wss.on('connection', function connection(ws) {
 
             console.log("New Display : " + name);
             break;
-
           }
         }
         break;
@@ -150,7 +96,7 @@ wss.on('connection', function connection(ws) {
                 console.log(obj.name + "_right");
               }
             }
-            //Send back (faliure)
+
           } else {
             names_con.push(obj.name + obj.orien);
             lookup_con[(obj.name + obj.orien)] = ws;
@@ -199,7 +145,7 @@ wss.on('connection', function connection(ws) {
 
 
       default:
-      console.log("Neue Nachricht: " + data);
+        console.log("Neue Nachricht: " + data);
 
     } //switch
 

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <title>display</title>
+  <script>
+    var ws = new WebSocket(`ws://${document.location.host}`);
+    //var ws = new WebSocket("ws://127.0.0.1:8080/");
+
+    let name = "";
+    let con_right = false;
+    let con_left = false;
+    let con_right_position = "";
+    let con_left_position = "";
+    let con_right_c = false;
+    let con_left_c = false;
+
+
+
+    function start() {
+      canv = document.getElementById("gc"); // canvas wird geladen
+      ctx = canv.getContext("2d"); //modus auf 2d setzen
+
+      setInterval(game, 1000 / 120); // Wiederholung von der function game 120 mal in der Sekunde ( 120 fps)
+      canv.width = window.innerWidth - 50;
+      canv.height = window.innerHeight - 50;
+      var punkte_schlaeger_right = 0;
+      var punkte_schlaeger_left = 0;
+      var start_game = false;
+      let con_height = canv.height / 10;
+
+
+      class Figur {
+
+        constructor(x_pos, y_pos, hoehe, breite, color) {
+          this.x = x_pos;
+          this.y = y_pos; // Position (x, y)
+          this.hoehe = hoehe;
+          this.breite = breite;
+          this.vx = 0;
+          this.vy = 0; // Geschwindigkeit in x bzw. y-Richtung
+          this.color = color;
+        }
+
+
+        move() {
+          // Figur bewegen und dann fuer ein Frame anzeigen
+          this.x = this.x + this.vx;
+          this.y = this.y + this.vy;
+          if (this.color == undefined) {
+            ctx.fillStyle = "white";
+          } else {
+            ctx.fillStyle = this.color;
+          }
+
+          ctx.fillRect(this.x, this.y, this.hoehe, this.breite);
+        }
+      }
+
+      class Randomblock extends Figur {
+        constructor(x_pos, y_pos, hoehe, breite, color) {
+          super(x_pos, y_pos, hoehe, breite, color);
+          this.counter1 = 0;
+          this.counter2 = 0;
+
+        }
+        move() {
+          super.move();
+          if (this.counter1 >= 180) {
+            this.vx = Math.random() * (1 - -1) + -1;
+            this.vy = Math.random() * (2 - -2) + -2;
+
+            this.counter1 = 0;
+          }
+          if (this.counter2 >= 80) {
+            this.randomize();
+            this.counter2 = 0;
+          }
+          this.collide();
+          this.counter1++;
+          this.counter2++;
+
+        }
+        collide() {
+          if (this.y >= canv.height - 60 || this.y <= 10) { // this springt von Seitenbanden ab
+            this.vy = -this.vy;
+          }
+          if (this.x + 50 > canv.width - 50 || this.x < 10) { // this springt von seiten ab
+            this.x = canv.width / 2;
+            this.y = canv.height / 2;
+
+            //	this.vx = !this.vx;
+          }
+        }
+        randomize() {
+
+          if (this.x < ball.x + ball.hoehe && this.x + this.hoehe > ball.x && this.y < ball.y + ball.hoehe && this.y + this.hoehe > ball.y) {
+
+
+            if ((Math.random() * (1 - -1) + -1) > 0) {
+              ball.vx = canv.width / 467.5;
+            } else {
+              ball.vx = -(canv.width / 467.5);
+            }
+            ball.vy = Math.random() * ((canv.width / 467.5) - -(canv.width / 467.5)) + -(canv.width / 467.5);
+            this.vx = !ball.vx;
+            this.vy = !ball.vy;
+
+          }
+
+
+        }
+      }
+    /*  class Powerup extends Figur {
+        constructor(x_pos, y_pos, hoehe, breite, color, special) {
+          super(x_pos, y_pos, hoehe, breite, color);
+          this.special = special;
+          this.counter = 0;
+          this.counter2 = 0;
+        }
+        move() {
+          super.move();
+          this.collide();
+          if (this.counter >= 480) {
+            this.x = Math.floor(Math.random() * (canv.height - 100 - 100)) + 100;
+            this.y = Math.floor(Math.random() * (canv.height - 50 - 50)) + 50;
+            this.counter = 0;
+          }
+          if(this.counter2>=80){
+            this.powerup();
+          }
+          this.counter++;
+          this.counter2++;
+        }
+        collide() {
+          if (this.y >= canv.height - 60 || this.y <= 10) { // this springt von Seitenbanden ab
+            this.vy = -this.vy;
+          }
+          if (this.x + 50 > canv.width - 50 || this.x < 10) { // this springt von seiten ab
+            this.x = canv.width / 2;
+            this.y = canv.height / 2;
+          }
+        }
+        powerup() {
+          if (this.x < ball.x + ball.hoehe && this.x + this.hoehe > ball.x && this.y < ball.y + ball.hoehe && this.y + this.hoehe > ball.y) {
+            if(this.powerup==="speed"){
+              console.log("rf");
+              ball.vx=2* (ball.vx);
+              ball.vy=2* (ball.vy);
+            }
+          }
+        }
+      }*/
+      var ball = new Figur(60, canv.height / 2, 10, 10);
+      var schlaeger_right = new Figur(canv.width - 10, canv.height / 2 - 25, 10, con_height);
+      var schlaeger_left = new Figur(0, canv.height / 2 - 25, 10, con_height);
+      var random1 = new Randomblock(canv.width / 2, canv.height / 2, 50, 50, "#7a7a7a");
+      var random2 = new Randomblock(canv.width / 2, canv.height / 2, 50, 50, "#7a7a7a");
+    //  var speed1 = new Powerup(canv.width / 2, canv.height / 2, 50, 50, "red","speed");
+
+
+      console.log(canv.width);
+
+
+      ball.vy = (Math.random() * 2) + -2;
+
+      ball.vx = canv.width / 467, 5;
+
+      function game() {
+        //websocket
+        //if(con_right_c){
+        if (con_right_position == "up") {
+          schlaeger_right.y -= 10;
+
+          con_right_position = "";
+          start_game = true;
+        } else if (con_right_position == "down") {
+          schlaeger_right.y += 10;
+
+          con_right_position = "";
+          start_game = true;
+        }
+        //  }else if (con_left_c) {
+        else if (con_left_position == "up") {
+          schlaeger_left.y -= 10;
+
+          con_left_position = "";
+          start_game = true;
+        } else if (con_left_position == "down") {
+          schlaeger_left.y += 10;
+
+          con_left_position = "";
+          start_game = true;
+        }
+        //}
+        // zeichnet alle Lienien
+        ctx.fillStyle = "black"; // background
+        ctx.fillRect(0, 0, canv.width, canv.height);
+        ctx.fillStyle = "#20872f"; //green lines
+        ctx.fillRect(0, 0, canv.width, 10);
+        ctx.fillRect(0, canv.height - 10, canv.width, 10);
+
+
+
+        ctx.fillStyle = "#c42d00"; //red lines
+        ctx.fillRect(0, 0, 10, canv.height);
+        ctx.fillRect(canv.width - 10, 0, 10, canv.height);
+
+
+        ctx.fillStyle = "#595d6d"; //middle line
+        ctx.fillRect(canv.width / 2 - 5, 0, 10, canv.height);
+
+        random1.move();
+        random2.move();
+        //speed1.move();
+
+        // zeigt punkte an
+        ctx.font = "bold 68px Keania One";
+        ctx.fillStyle = 'white';
+        ctx.textBaseline = 'top';
+        ctx.fillText(punkte_schlaeger_left, canv.width / 2 - 100, canv.height / 2 - 20);
+        ctx.fillText(punkte_schlaeger_right, canv.width / 2 + 50, canv.height / 2 - 20);
+        //
+
+        // bewegt alles
+        schlaeger_right.move();
+        schlaeger_left.move();
+        if (start_game) {
+          ball.move();
+        } else {
+          ctx.fillRect(ball.x, ball.y, ball.hoehe, ball.breite);
+        }
+
+        if (ball.y >= canv.height - 20 || ball.y <= 20) { // ball springt von Seitenbanden ab
+          ball.vy = -ball.vy;
+        }
+
+        if (ball.x > canv.width - 15 && ball.x <= canv.width - 5 && ball.y > schlaeger_right.y && ball.y < schlaeger_right.y + con_height) { // schaut ob der rechte schlaeger den Ball trifft
+          ball.vx = -(canv.width / 467.5) // spring vom Schlaeger ab
+        }
+
+        if (ball.x < 15 && ball.x <= 5 && ball.y > schlaeger_left.y && ball.y < schlaeger_left.y + con_height) { // schaut ob der linke schlaeger den Ball trifft
+          ball.vx = canv.width / 467.5; // spring vom Schlaeger ab
+        }
+
+        // stoppt die Banden beim aus dem Bild gehen
+        if (schlaeger_right.y < 0) {
+          schlaeger_right.y = 0;
+        } else if (schlaeger_right.y + con_height > canv.height) {
+          schlaeger_right.y = canv.height - con_height;
+        }
+
+        if (schlaeger_left.y < 0) {
+          schlaeger_left.y = 0;
+        } else if (schlaeger_left.y + con_height > canv.height) {
+          schlaeger_left.y = canv.height - con_height;
+        }
+
+        // punkt pruefung
+        if (ball.x > canv.width) {
+          punkte_schlaeger_left++;
+
+          ball.vx = -canv.width / 467, 5;
+          ball.x = canv.width - 70;
+          ball.vy = (Math.random() * 4) + -4;
+
+          ball.y = canv.height / 2;
+          schlaeger_right.y = schlaeger_left.y = canv.height / 2 - 25;
+          start_game = false;
+
+        }
+        if (ball.x < 0) {
+          punkte_schlaeger_right++;
+
+          ball.vx = canv.width / 467, 5;
+          ball.x = 60;
+          ball.vy = (Math.random() * 4) + -4;
+
+          ball.y = canv.height / 2;
+          schlaeger_right.y = schlaeger_left.y = canv.height / 2 - 25;
+          start_game = false;
+        }
+        //
+      }
+
+      //
+    }
+
+    function load() {
+
+      if ("WebSocket" in window) {
+        //alert("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+
+
+        ws.onopen = function() {
+          console.log("Connected");
+          ws.send(JSON.stringify({
+            id: "Display"
+          }));
+          // Web Socket is connected, send data using send()
+
+          //alert("Message is sent...");
+        };
+
+        ws.onmessage = function(evt) {
+          let data = evt.data;
+
+          let obj = JSON.parse(data);
+          switch (obj.id) {
+            case "LOGIN":
+              name = obj.name;
+              console.log(name);
+              document.getElementById("name").innerHTML = "Enter the Code on the Contoller: " + name;
+
+            case "CONTROLLER CONNECT":
+              if (obj.orien == "_right") {
+                con_right = true;
+                document.getElementById("name").innerHTML = "Waiting for Left Controller     ID: " + name;
+              } else if (obj.orien == "_left") {
+                document.getElementById("name").innerHTML = "Waiting for Right Controller     ID: " + name;
+                con_left = true;
+              }
+              if (con_right && con_left) {
+                document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 5 seconds";
+
+                document.getElementById("gc").style.display = "inline-block";
+                document.getElementById("font").style.display = "inline-block";
+
+                ws.send(JSON.stringify({
+                  id: "GO",
+                  name: name
+
+                }))
+                setTimeout(function() {
+                  document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 4 seconds";
+                }, 1000);
+                setTimeout(function() {
+                  document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 3 seconds";
+                }, 2000);
+                setTimeout(function() {
+                  document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 2 seconds";
+                }, 3000);
+                setTimeout(function() {
+                  document.getElementById("name").innerHTML = "Both Controller are connected. Game starts in 1 second";
+                }, 4000);
+                setTimeout(function() {
+                  document.getElementById('name').style.display = "none";
+                  start();
+                }, 5000);
+
+              } else if (con_right) {
+                document.getElementById("name").innerHTML = "Waiting for the left Controller.    Code:" + name;
+              } else if (con_right) {
+                document.getElementById("name").innerHTML = "Waiting for the right Controller.     Code:" + name;
+              }
+              break;
+            case "GAME":
+              if (con_right && con_left) {
+                if (obj.orien == "_right") {
+                  con_right_c = true;
+                  con_right_position = obj.y;
+                  con_right_c = false;
+
+                } else if (obj.orien == "_left") {
+                  con_left_c = true;
+                  con_left_position = obj.y;
+                  con_left_c = false;
+
+                }
+              }
+              break;
+
+          } //switch
+        };
+
+        ws.onclose = function() {
+
+          // websocket is closed.
+          console.log("connection ends");
+
+        };
+      } else {
+
+        // The browser doesn't support WebSocket
+        alert("WebSocket NOT supported by your Browser!");
+      }
+    }
+  </script>
+
+</head>
+
+
+
+
+<body onload="load();">
+  <p><span id="name" style="display:inline-block"></span></p>
+  <span style="font-family: 'Keania+One';" style="display:none" id="font"> &nbsp; </span>
+
+  <canvas id="gc" width="" height="" style="display:none"></canvas>
+
+
+
+</body>
+
+</html>
