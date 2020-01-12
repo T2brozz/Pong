@@ -1,0 +1,222 @@
+<html>
+<style>
+
+</style>
+
+<head>
+
+  <script>
+    var ws = new WebSocket("ws://localhost:3000/");
+    let orientation = "";
+    let name = "";
+    let moves = document.getElementById('moves');
+    var height = window.innerHeight;
+    let y_current = 0;
+    let y_last = 0;
+    let touch = false;
+
+
+
+
+    //var  document = document.querySelector('.document');
+
+
+
+
+    function game() {
+
+        if (y_current > y_last && touch) {  //changes orientation relativ
+          document.getElementById("text1").innerHTML = "down";
+          ws.send(JSON.stringify({
+            id: "GAME",
+            name: name,
+            orien: orientation,
+            y: "down"
+          }));
+
+        } else if (y_current < y_last && touch) {
+          document.getElementById("text1").innerHTML = "up";
+          ws.send(JSON.stringify({
+            id: "GAME",
+            name: name,
+            orien: orientation,
+            y: "up"
+          }));
+        } else if (touch == false || y_last==y_current) {
+          document.getElementById("text1").innerHTML = "";
+
+        }
+        y_last = y_current;
+
+  /*    if (y_current > height / 2 && touch) {  //changes orientation in the mid
+        document.getElementById("text1").innerHTML = "down";
+        ws.send(JSON.stringify({
+          id: "GAME",
+          name: name,
+          orien: orientation,
+          y: "down"
+        }));
+      } else if (y_current < height / 2 && touch) {
+        document.getElementById("text1").innerHTML = "up";
+        ws.send(JSON.stringify({
+          id: "GAME",
+          name: name,
+          orien: orientation,
+          y: "up"
+        }));
+      }*/
+    }
+
+
+
+
+
+
+
+    function load() {
+      document.getElementById("text1").innerHTML = "Enter  the Code from the Display device";
+      document.getElementById("text2").innerHTML = "Select your orientation from the Display device";
+      if ("WebSocket" in window) {
+        //alert("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+
+
+        ws.onopen = function() {
+          console.log("Connected");
+          // Web Socket is connected, send data using send()
+
+          //alert("Message is sent...");
+        };
+
+        ws.onmessage = function(evt) {
+          let data = evt.data;
+          console.log(data);
+          var obj = JSON.parse(data);
+          switch (obj.id) {
+            case "CONTROLLER":
+              if (obj.orien == orientation) {
+                alert("anmeldung erfolgreich");
+
+              } else if (obj.orien == "nothing") {
+                alert("false Display Code or Room is full !! Try it again please");
+              } else {
+                if (orientation == "_left") {
+                  alert("You are now Right! The other Player was faster");
+                } else {
+                  alert("You are now Left! The other Player was faster");
+                }
+              }
+              break;
+            case "GO":
+              document.getElementById('id').style.display = "none";
+              document.getElementById('text2').style.display = "none";
+              document.getElementById('right').style.display = "none";
+              document.getElementById("left").style.display = "none";
+              document.getElementById('login').style.display = "none";
+              window.addEventListener('touchstart', function(eve) {
+                var touchobj = eve.changedTouches[0]; // erster Finger
+                eve.preventDefault();
+                touch = true;
+              });
+
+              window.addEventListener('touchmove', function(eve) {
+                var touchobj = eve.changedTouches[0]; // erster Finger
+                y_current = parseInt(touchobj.clientY, 10);
+
+                eve.preventDefault();
+              });
+
+              window.addEventListener('touchend', function(eve) {
+                var touchobj = eve.changedTouches[0]; // reference first touch point for this event
+                eve.preventDefault();
+                touch = false;
+              });
+              setInterval(game, 100 / 120);
+              break;
+          } //swith
+        }
+
+        ws.onclose = function() {
+
+          // websocket is closed.
+          console.log("connection ends");
+
+        };
+      } else {
+
+        // The browser doesn't support WebSocket
+        alert("WebSocket NOT supported by your Browser!");
+      }
+    }
+
+
+
+    function login() {
+      name = document.getElementById('id').value;
+      if (name == "") {
+        alert("Enter Id");
+      }
+      if (orientation === "") {
+        alert("Choos an orientation");
+
+      } else {
+        ws.send(JSON.stringify({
+          id: "CONTROLLER",
+          name: name,
+          orien: orientation
+        }));
+        console.log(name);
+      }
+    }
+
+    function to_name() {
+      let to = document.getElementById('to').value;
+      let message = document.getElementById('message').value;
+      ws.send(JSON.stringify({
+        id: "SEND_TO",
+        to_name: to,
+        msg: message
+      }));
+      console.log(JSON.stringify({
+        to_name: to,
+        msg: message
+      }));
+    }
+
+    function right() {
+      orientation = "_right";
+    }
+
+    function left() {
+      orientation = "_left";
+    }
+  </script>
+
+</head>
+
+
+
+
+<body onload="load();">
+
+
+  <p><span id="text1" style="display:inline-block"></span></p>
+
+  <input type="text" style="display:inline-block" value="" id="id" /><!-- Username -->
+
+  <p><span id="text2" style="display:inline-block"></span></p>
+
+  <input type="button" style="display:inline-block" value="Right Controller" onclick="right();" id="right" /> <!-- Controller -->
+  <input type="button" style="display:inline-block" value="Left Controller" onclick="left();" id="left" /><!-- Display -->
+
+
+
+  <p id="p2"></p>
+
+  <input type="button" style="display:inline-block" value="Login as Controller" onclick="login();" id="login" />
+
+
+</body>
+
+</html>
