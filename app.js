@@ -1,7 +1,7 @@
-var http = require('http');
+const http = require('http');
 const express = require('express');
-var url = require('url');
-var fs = require('fs');
+const url = require('url');
+const fs = require('fs');
 const WebSocket = require('ws');
 
 var names_con = [];
